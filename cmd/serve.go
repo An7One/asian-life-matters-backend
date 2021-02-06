@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	api "github.com/zea7ot/web_api_aeyesafe/api/app"
+	api "github.com/zea7ot/web_api_aeyesafe/api"
 )
 
 var serveCmd = &cobra.Command{
