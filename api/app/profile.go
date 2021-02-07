@@ -18,6 +18,7 @@ var (
 
 // ProfileDBClient defines database operations for a profile
 type ProfileDBClient interface {
+	AddOneProfile(p *model.Profile) (*model.Profile, error)
 	GetOneProfileByPhoneNumber(phonenumber string) (*model.Profile, error)
 	UpdateOneProfile(p *model.Profile) (*model.Profile, error)
 }
@@ -38,6 +39,7 @@ func (rs *ProfileResource) router() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(rs.profileCtx)
 	r.Get("/", rs.get)
+	r.Post("/", rs.add)
 	r.Put("/", rs.update)
 	return r
 }
@@ -78,6 +80,27 @@ func newProfileResponse(p *model.Profile) *profileResponse {
 
 func (rs *ProfileResource) get(w http.ResponseWriter, r *http.Request) {
 	p := r.Context().Value(ctxProfile).(*model.Profile)
+	render.Respond(w, r, newProfileResponse(p))
+}
+
+func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {
+	p := r.Context().Value(ctxProfile).(*model.Profile)
+	data := &profileRequest{Profile: p}
+	if err := render.Bind(r, data); err != nil {
+		render.Render(w, r, ErrInvalidRequest(err))
+	}
+
+	_, err := rs.Client.AddOneProfile(p)
+	if err != nil {
+		switch err.(type) {
+		case validation.Errors:
+			render.Render(w, r, ErrValidation(ErrProfileValidation, err.(validation.Errors)))
+			return
+		}
+		render.Render(w, r, ErrRender(err))
+		return
+	}
+
 	render.Respond(w, r, newProfileResponse(p))
 }
 

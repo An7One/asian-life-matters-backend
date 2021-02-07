@@ -52,6 +52,11 @@ func (s *ProfileDBClient) GetOneProfileByPhoneNumber(phoneNumber string) (*model
 	return &profile, nil
 }
 
+// AddOneProfile creates a Profile with the input Profile and add it to the database
+func (s *ProfileDBClient) AddOneProfile(p *model.Profile) (*model.Profile, error) {
+	return p, nil
+}
+
 // UpdateOneProfile updates a Profile with the input Profile
 func (s *ProfileDBClient) UpdateOneProfile(p *model.Profile) (*model.Profile, error) {
 	return p, nil

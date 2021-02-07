@@ -23,7 +23,6 @@ type API struct {
 
 // NewAPI configures and returns the application API
 func NewAPI(client *database.DBClient) (*API, error) {
-
 	profileDBClient := database.NewProfileClient(client)
 	profile := NewProfileResource(profileDBClient)
 
