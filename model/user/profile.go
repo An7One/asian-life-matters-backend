@@ -8,10 +8,10 @@ import (
 
 // Profile the model for user
 type Profile struct {
-	ID          int    `json:"-"`
-	Username    string `json:"username"`
+	ID int `json:"-"`
+	// Username    string `json:"username"`
 	PhoneNumber string `json:"phonenumber"`
-	Password    string `json:"password"`
+	// Password    string `json:"password,omitempty"`
 
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 

@@ -27,5 +27,4 @@ func init() {
 	// to define flags
 	viper.SetDefault("port", "localhost:7777")
 	viper.SetDefault("log_level", "debug")
-
 }

@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
+	"github.com/zea7ot/web_api_aeyesafe/api/app"
+	"github.com/zea7ot/web_api_aeyesafe/database"
 	"github.com/zea7ot/web_api_aeyesafe/logging"
 )
 
@@ -17,8 +19,18 @@ func New(enableCORS bool) (*chi.Mux, error) {
 	logger := logging.NewLogger()
 
 	// database access
+	client := database.DBConn()
+	// if err != nil {
+	// 	logger.WithField("module", "database").Error(err)
+	// 	return nil, err
+	// }
 
 	// app api
+	appAPI, err := app.NewAPI(client)
+	if err != nil {
+		logger.WithField("module", "app").Error(err)
+		return nil, err
+	}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
@@ -33,6 +45,10 @@ func New(enableCORS bool) (*chi.Mux, error) {
 	if enableCORS {
 		r.Use(corsConfig().Handler)
 	}
+
+	r.Group(func(r chi.Router) {
+		r.Mount("/api", appAPI.Router())
+	})
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -10,25 +11,26 @@ import (
 	model "github.com/zea7ot/web_api_aeyesafe/model/user"
 )
 
+// the list of errors returned from the profile resource
 var (
 	ErrProfileValidation = errors.New("profile validation error")
 )
 
-// ProfileStore defines database operations for a profile
-type ProfileStore interface {
-	Get(phonenumber string) (*model.Profile, error)
-	Update(p *model.Profile) error
+// ProfileDBClient defines database operations for a profile
+type ProfileDBClient interface {
+	GetOneProfileByPhoneNumber(phonenumber string) (*model.Profile, error)
+	UpdateOneProfile(p *model.Profile) (*model.Profile, error)
 }
 
 // ProfileResource implements profile management handler
 type ProfileResource struct {
-	Store ProfileStore
+	Client ProfileDBClient
 }
 
 // NewProfileResource creates and returns a profile resource
-func NewProfileResource(store ProfileStore) *ProfileResource {
+func NewProfileResource(client ProfileDBClient) *ProfileResource {
 	return &ProfileResource{
-		Store: store,
+		Client: client,
 	}
 }
 
@@ -42,7 +44,16 @@ func (rs *ProfileResource) router() *chi.Mux {
 
 func (rs *ProfileResource) profileCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// dummy data for now
+		p, err := rs.Client.GetOneProfileByPhoneNumber("1111")
+		if err != nil {
+			log(r).WithField("profileCtx", "none claim yet").Error(err)
+			render.Render(w, r, ErrInternalServerError)
+			return
+		}
 
+		ctx := context.WithValue(r.Context(), ctxProfile, p)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
@@ -77,7 +88,8 @@ func (rs *ProfileResource) update(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ErrInvalidRequest(err))
 	}
 
-	if err := rs.Store.Update(p); err != nil {
+	_, err := rs.Client.UpdateOneProfile(p)
+	if err != nil {
 		switch err.(type) {
 		case validation.Errors:
 			render.Render(w, r, ErrValidation(ErrProfileValidation, err.(validation.Errors)))

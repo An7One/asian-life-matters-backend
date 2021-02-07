@@ -49,7 +49,7 @@ func (srv *Server) Start() {
 			panic(err)
 		}
 	}()
-	log.Printf("Listening on %\n", srv.Addr)
+	log.Printf("Listening on %s\n", srv.Addr)
 
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
