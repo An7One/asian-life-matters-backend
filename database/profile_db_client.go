@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -13,18 +14,18 @@ const tableName string = "aeyesafe_user_profile"
 
 // ProfileDBClient returns a client to the dynamo database
 type ProfileDBClient struct {
-	client *DBClient
+	db *dynamodb.DynamoDB
 }
 
 // NewProfileClient returns a ProfileClient implementation
-func NewProfileClient(client *DBClient) *ProfileDBClient {
+func NewProfileClient(db *dynamodb.DynamoDB) *ProfileDBClient {
 	return &ProfileDBClient{
-		client: client,
+		db: db,
 	}
 }
 
 // GetOneProfileByPhoneNumber returns a Profile by his/her phone number
-func (s *ProfileDBClient) GetOneProfileByPhoneNumber(phoneNumber string) (*model.Profile, error) {
+func (c *ProfileDBClient) GetOneProfileByPhoneNumber(phoneNumber string) (*model.Profile, error) {
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -34,7 +35,7 @@ func (s *ProfileDBClient) GetOneProfileByPhoneNumber(phoneNumber string) (*model
 		},
 	}
 
-	res, err := s.client.svc.GetItem(input)
+	res, err := c.db.GetItem(input)
 	if err != nil {
 		return nil, err
 	}
@@ -53,11 +54,30 @@ func (s *ProfileDBClient) GetOneProfileByPhoneNumber(phoneNumber string) (*model
 }
 
 // AddOneProfile creates a Profile with the input Profile and add it to the database
-func (s *ProfileDBClient) AddOneProfile(p *model.Profile) (*model.Profile, error) {
-	return p, nil
+func (c *ProfileDBClient) AddOneProfile(p *model.Profile) (*model.Profile, error) {
+	av, err := dynamodbattribute.MarshalMap(p)
+	if err != nil {
+		log.Fatal("Got an error marshalling Profile item")
+		log.Fatal(err.Error())
+		return nil, err
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      av,
+		TableName: aws.String(tableName),
+	}
+
+	_, err = c.db.PutItem(input)
+	if err != nil {
+		log.Fatal("Got an error calling PutItem:")
+		log.Fatal(err.Error())
+		return nil, err
+	}
+
+	return p, err
 }
 
 // UpdateOneProfile updates a Profile with the input Profile
-func (s *ProfileDBClient) UpdateOneProfile(p *model.Profile) (*model.Profile, error) {
+func (c *ProfileDBClient) UpdateOneProfile(p *model.Profile) (*model.Profile, error) {
 	return p, nil
 }

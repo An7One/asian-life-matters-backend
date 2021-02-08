@@ -10,7 +10,7 @@ import (
 type Profile struct {
 	ID int `json:"-"`
 	// Username    string `json:"username"`
-	PhoneNumber string `json:"phonenumber"`
+	PhoneNumber string `json:"phoneNumber"`
 	// Password    string `json:"password,omitempty"`
 
 	UpdatedAt time.Time `json:"updated_at,omitempty"`

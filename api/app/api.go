@@ -3,6 +3,7 @@ package app
 import (
 	"net/http"
 
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 	"github.com/zea7ot/web_api_aeyesafe/database"
@@ -22,8 +23,8 @@ type API struct {
 }
 
 // NewAPI configures and returns the application API
-func NewAPI(client *database.DBClient) (*API, error) {
-	profileDBClient := database.NewProfileClient(client)
+func NewAPI(db *dynamodb.DynamoDB) (*API, error) {
+	profileDBClient := database.NewProfileClient(db)
 	profile := NewProfileResource(profileDBClient)
 
 	api := &API{

@@ -1,7 +1,7 @@
 package app
 
 import (
-	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -37,7 +37,7 @@ func NewProfileResource(client ProfileDBClient) *ProfileResource {
 
 func (rs *ProfileResource) router() *chi.Mux {
 	r := chi.NewRouter()
-	r.Use(rs.profileCtx)
+	// r.Use(rs.profileCtx)
 	r.Get("/", rs.get)
 	r.Post("/", rs.add)
 	r.Put("/", rs.update)
@@ -47,21 +47,22 @@ func (rs *ProfileResource) router() *chi.Mux {
 func (rs *ProfileResource) profileCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// dummy data for now
-		p, err := rs.Client.GetOneProfileByPhoneNumber("1111")
-		if err != nil {
-			log(r).WithField("profileCtx", "none claim yet").Error(err)
-			render.Render(w, r, ErrInternalServerError)
-			return
-		}
+		// p, err := rs.Client.GetOneProfileByPhoneNumber("1111")
+		// if err != nil {
+		// 	log(r).WithField("profileCtx", "none claim yet").Error(err)
+		// 	render.Render(w, r, ErrInternalServerError)
+		// 	return
+		// }
 
-		ctx := context.WithValue(r.Context(), ctxProfile, p)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		// ctx := context.WithValue(r.Context(), ctxProfile, p)
+		// next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r)
 	})
 }
 
 type profileRequest struct {
 	*model.Profile
-	ProtectedID int `json:"id"`
+	PhoneNumber int `json:"phoneNumber"`
 }
 
 func (d *profileRequest) Bind(r *http.Request) error {
@@ -84,13 +85,22 @@ func (rs *ProfileResource) get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {
-	p := r.Context().Value(ctxProfile).(*model.Profile)
-	data := &profileRequest{Profile: p}
-	if err := render.Bind(r, data); err != nil {
+	// p := r.Context().Value(ctxProfile).(*model.Profile)
+
+	var p *model.Profile
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
 		render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
 
-	_, err := rs.Client.AddOneProfile(p)
+	// todo: why is this erroneous?
+	// data := &profileRequest{Profile: p}
+	// if err := render.Bind(r, data); err != nil {
+	// 	render.Render(w, r, ErrInvalidRequest(err))
+	// }
+
+	_, err = rs.Client.AddOneProfile(p)
 	if err != nil {
 		switch err.(type) {
 		case validation.Errors:

@@ -19,14 +19,14 @@ func New(enableCORS bool) (*chi.Mux, error) {
 	logger := logging.NewLogger()
 
 	// database access
-	client := database.DBConn()
+	db := database.DBConn()
 	// if err != nil {
 	// 	logger.WithField("module", "database").Error(err)
 	// 	return nil, err
 	// }
 
 	// app api
-	appAPI, err := app.NewAPI(client)
+	appAPI, err := app.NewAPI(db)
 	if err != nil {
 		logger.WithField("module", "app").Error(err)
 		return nil, err

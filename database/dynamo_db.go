@@ -73,13 +73,11 @@ type DBClient struct {
 // }
 
 // DBConn creates a session connecting to the dyanmo database
-func DBConn() *DBClient {
+func DBConn() *dynamodb.DynamoDB {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
 	svc := dynamodb.New(sess)
-	return &DBClient{
-		svc: svc,
-	}
+	return svc
 }
