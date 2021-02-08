@@ -7,10 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	model "github.com/zea7ot/web_api_aeyesafe/model/user"
 )
-
-const tableName string = "aeyesafe_user_profile_otp"
 
 // ProfileOTPDBClient returns a client to the dynamo database - aeye_user_profile_otp
 type ProfileOTPDBClient struct {
@@ -35,7 +34,7 @@ func (c *ProfileOTPDBClient) AddOneProfileOTP(otp *model.ProfileOTP) (*model.Pro
 
 	input := &dynamodb.PutItemInput{
 		Item:      av,
-		TableName: aws.String(tableName),
+		TableName: aws.String(viper.GetString("tableName.AEyeSafeUserProfileOTP")),
 	}
 
 	_, err = c.db.PutItem(input)
@@ -51,7 +50,7 @@ func (c *ProfileOTPDBClient) AddOneProfileOTP(otp *model.ProfileOTP) (*model.Pro
 // GetOneProfileOTPByPhoneNumber returns a ProfileOTP by the phone number
 func (c *ProfileOTPDBClient) GetOneProfileOTPByPhoneNumber(phoneNumber string) (*model.ProfileOTP, error) {
 	input := &dynamodb.GetItemInput{
-		TableName: aws.String(tableName),
+		TableName: aws.String(viper.GetString("tableName.AEyeSafeUserProfileOTP")),
 		Key: map[string]*dynamodb.AttributeValue{
 			"phoneNumber": {
 				N: aws.String(phoneNumber),
@@ -75,4 +74,9 @@ func (c *ProfileOTPDBClient) GetOneProfileOTPByPhoneNumber(phoneNumber string) (
 	}
 
 	return &profileOTP, nil
+}
+
+// UpdateOneProfileOTP updates a ProfileOTP with the input ProfileOTP
+func (c *ProfileOTPDBClient) UpdateOneProfileOTP(otp *model.ProfileOTP) (*model.ProfileOTP, error) {
+	return otp, nil
 }

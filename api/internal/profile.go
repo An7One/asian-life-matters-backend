@@ -27,13 +27,15 @@ type ProfileDBClient interface {
 
 // ProfileResource implements Profile management handler
 type ProfileResource struct {
-	Client ProfileDBClient
+	clientProfile ProfileDBClient
+	clientOTP     ProfileOTPDBClient
 }
 
 // NewProfileResource creates and returns a profile resource
-func NewProfileResource(client ProfileDBClient) *ProfileResource {
+func NewProfileResource(clientProfile ProfileDBClient, clientOTP ProfileOTPDBClient) *ProfileResource {
 	return &ProfileResource{
-		Client: client,
+		clientProfile: clientProfile,
+		clientOTP:     clientOTP,
 	}
 }
 
@@ -95,7 +97,7 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// to query the existing user
-	exg, err := rs.Client.GetOneProfileByPhoneNumber(p.PhoneNumber)
+	exg, err := rs.clientProfile.GetOneProfileByPhoneNumber(p.PhoneNumber)
 	if err != nil {
 		render.Render(w, r, ErrInvalidRequest(err))
 		return
@@ -128,7 +130,7 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 		OTPCreatedAt: time.Now(),
 	}
 
-	go ProfileOTPDBClient.AddOneProfileOTP(profileOTP)
+	go rs.clientOTP.AddOneProfileOTP(&profileOTP)
 }
 
 func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {
@@ -147,7 +149,7 @@ func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {
 	// 	render.Render(w, r, ErrInvalidRequest(err))
 	// }
 
-	_, err = rs.Client.AddOneProfile(p)
+	_, err = rs.clientProfile.AddOneProfile(p)
 	if err != nil {
 		switch err.(type) {
 		case validation.Errors:
@@ -168,7 +170,7 @@ func (rs *ProfileResource) update(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ErrInvalidRequest(err))
 	}
 
-	_, err := rs.Client.UpdateOneProfile(p)
+	_, err := rs.clientProfile.UpdateOneProfile(p)
 	if err != nil {
 		switch err.(type) {
 		case validation.Errors:
