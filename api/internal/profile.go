@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/zea7ot/web_api_aeyesafe/api/external/twilio"
 	model "github.com/zea7ot/web_api_aeyesafe/model/user"
 )
 
@@ -106,10 +108,27 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// to generate the One-Time Password
+	otp, err := model.GenerateOTP()
+	if err != nil {
+
+	}
+
 	// to send SMS to the phone number via Twilio
+	smsMes := twilio.Message{
+		PhoneNumberTo:  p.PhoneNumber,
+		MessageContent: otp,
+	}
+	go smsMes.SendMessage()
 
-	// to insert the profile into the database
+	// to insert the ProfileOTP into the database
+	profileOTP := model.ProfileOTP{
+		PhoneNumber:  p.PhoneNumber,
+		OTP:          otp,
+		OTPCreatedAt: time.Now(),
+	}
 
+	go ProfileOTPDBClient.AddOneProfileOTP(profileOTP)
 }
 
 func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {

@@ -17,7 +17,7 @@ type ProfileOTP struct {
 }
 
 // GenerateOTP generates a one-time password
-func (otp *ProfileOTP) GenerateOTP() (string, error) {
+func GenerateOTP() (string, error) {
 	u4, err := uuid.NewV4()
 	UUIDToken := u4.String()
 	if err != nil {
