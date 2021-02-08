@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
-	"github.com/zea7ot/web_api_aeyesafe/api/app"
+	app "github.com/zea7ot/web_api_aeyesafe/api/internal"
 	"github.com/zea7ot/web_api_aeyesafe/database"
 	"github.com/zea7ot/web_api_aeyesafe/logging"
 )

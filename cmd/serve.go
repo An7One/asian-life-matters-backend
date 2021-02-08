@@ -27,4 +27,8 @@ func init() {
 	// to define flags
 	viper.SetDefault("port", "localhost:7777")
 	viper.SetDefault("log_level", "debug")
+
+	// Twilio related
+	viper.SetDefault("twilio_acc_sid", "twilio_acc_sid")
+	viper.SetDefault("twilio_auth_token", "twilio_auth_token")
 }
