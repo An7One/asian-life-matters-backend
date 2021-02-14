@@ -97,23 +97,32 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// to query the existing user
-	exg, err := rs.clientProfile.GetOneProfileByPhoneNumber(p.PhoneNumber)
-	if err != nil {
-		render.Render(w, r, ErrInvalidRequest(err))
-		return
-	}
+	exg, _ := rs.clientProfile.GetOneProfileByPhoneNumber(p.PhoneNumber)
+	// if err != nil {
+	// 	render.Render(w, r, ErrInvalidRequest(err))
+	// 	return
+	// }
 
 	// if there is any existing user
 	if exg != nil {
-		// todo: 409 conflict
-
+		w.WriteHeader(http.StatusConflict)
+		w.Write([]byte("Phone number was registered before"))
 		return
 	}
+
+	// _, err =
+	go rs.clientProfile.AddOneProfile(p)
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
 
 	// to generate the One-Time Password
 	otp, err := model.GenerateOTP()
 	if err != nil {
-
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
 	}
 
 	// to send SMS to the phone number via Twilio
@@ -130,7 +139,7 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 		OTPCreatedAt: time.Now(),
 	}
 
-	go rs.clientOTP.AddOneProfileOTP(&profileOTP)
+	rs.clientOTP.AddOneProfileOTP(&profileOTP)
 }
 
 func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {
@@ -156,6 +165,7 @@ func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {
 			render.Render(w, r, ErrValidation(ErrProfileValidation, err.(validation.Errors)))
 			return
 		}
+
 		render.Render(w, r, ErrRender(err))
 		return
 	}

@@ -13,7 +13,7 @@ type ProfileOTP struct {
 
 	// one time password
 	OTP          string    `json:"otp"`
-	OTPCreatedAt time.Time `json:"otp_created_at"`
+	OTPCreatedAt time.Time `json:"otpCreatedAt"`
 }
 
 // GenerateOTP generates a one-time password

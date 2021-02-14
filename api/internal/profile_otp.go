@@ -39,8 +39,7 @@ func (rs *ProfileOTPResource) router() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Get("/", rs.get)
-	r.Get("/verify", rs.verify)
-	r.Post("/", rs.add)
+	r.Post("/verify", rs.verify)
 	r.Put("/", rs.update)
 
 	return r
@@ -68,15 +67,11 @@ func (rs *ProfileOTPResource) get(w http.ResponseWriter, r *http.Request) {
 	render.Respond(w, r, newProfileOTPResponse(res))
 }
 
-func (rs *ProfileOTPResource) verify(w http.ResponseWriter, r *http.Request) {
-
-}
-
 func (rs *ProfileOTPResource) update(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (rs *ProfileOTPResource) add(w http.ResponseWriter, r *http.Request) {
+func (rs *ProfileOTPResource) verify(w http.ResponseWriter, r *http.Request) {
 	var otp *model.ProfileOTP
 	err := json.NewDecoder(r.Body).Decode(&otp)
 	if err != nil {
@@ -84,7 +79,7 @@ func (rs *ProfileOTPResource) add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = rs.Client.AddOneProfileOTP(otp)
+	extOtp, err := rs.Client.GetOneProfileOTPByPhoneNumber(otp.PhoneNumber)
 	if err != nil {
 		switch err.(type) {
 		case validation.Errors:
@@ -95,7 +90,12 @@ func (rs *ProfileOTPResource) add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.Respond(w, r, newProfileOTPResponse(otp))
+	if otp.OTP != extOtp.OTP {
+		// 403 not authorized
+
+	} else {
+		render.Respond(w, r, newProfileOTPResponse(otp))
+	}
 }
 
 type profileOTPResponse struct {

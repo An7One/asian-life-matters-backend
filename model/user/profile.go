@@ -13,7 +13,7 @@ type Profile struct {
 	PhoneNumber string `json:"phoneNumber"`
 	// Password    string `json:"password,omitempty"`
 
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 
 	Theme string `json:"theme,omitempty"`
 }

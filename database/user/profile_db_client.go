@@ -30,7 +30,7 @@ func (c *ProfileDBClient) GetOneProfileByPhoneNumber(phoneNumber string) (*model
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
 			"phoneNumber": {
-				N: aws.String(phoneNumber),
+				S: aws.String(phoneNumber),
 			},
 		},
 	}
@@ -45,7 +45,7 @@ func (c *ProfileDBClient) GetOneProfileByPhoneNumber(phoneNumber string) (*model
 	}
 
 	profile := model.Profile{}
-	err = dynamodbattribute.UnmarshalMap(res.Item, profile)
+	err = dynamodbattribute.UnmarshalMap(res.Item, &profile)
 	if err != nil {
 		return nil, err
 	}
