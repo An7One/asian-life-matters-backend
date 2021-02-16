@@ -97,18 +97,18 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// to query the existing user
-	exg, _ := rs.clientProfile.GetOneProfileByPhoneNumber(p.PhoneNumber)
+	// exg, _ := rs.clientProfile.GetOneProfileByPhoneNumber(p.PhoneNumber)
 	// if err != nil {
 	// 	render.Render(w, r, ErrInvalidRequest(err))
 	// 	return
 	// }
 
 	// if there is any existing user
-	if exg != nil {
-		w.WriteHeader(http.StatusConflict)
-		w.Write([]byte("Phone number was registered before"))
-		return
-	}
+	// if exg != nil {
+	// 	w.WriteHeader(http.StatusConflict)
+	// 	w.Write([]byte("Phone number was registered before"))
+	// 	return
+	// }
 
 	// _, err =
 	go rs.clientProfile.AddOneProfile(p)
@@ -118,12 +118,7 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// to generate the One-Time Password
-	otp, err := model.GenerateOTP()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
+	otp := model.GenerateOTP()
 
 	// to send SMS to the phone number via Twilio
 	smsMes := twilio.Message{

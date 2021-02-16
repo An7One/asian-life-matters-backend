@@ -61,14 +61,17 @@ func initConfig() {
 		// to search config in home directory with name ".aeyesafe" (without extension)
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".aeyesafe_config")
-		viper.SetConfigType("yaml")
+		viper.SetConfigType("json")
 	}
 
 	// to read in environment variables that match
 	viper.AutomaticEnv()
 
 	// to read it in if a config file has been found
-	if err := viper.ReadInConfig(); err == nil {
+	err := viper.ReadInConfig()
+	if err == nil {
 		fmt.Println("Using config file: ", viper.ConfigFileUsed())
+	} else {
+		fmt.Printf("err: %s", err.Error())
 	}
 }

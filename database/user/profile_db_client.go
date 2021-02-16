@@ -7,10 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/spf13/viper"
 	model "github.com/zea7ot/web_api_aeyesafe/model/user"
 )
-
-const tableName string = "aeyesafe_user_profile"
 
 // ProfileDBClient returns a client to the dynamo database - aeyesafe_user_profile
 type ProfileDBClient struct {
@@ -27,7 +26,7 @@ func NewProfileDBClient(db *dynamodb.DynamoDB) *ProfileDBClient {
 // GetOneProfileByPhoneNumber returns a Profile by the phone number
 func (c *ProfileDBClient) GetOneProfileByPhoneNumber(phoneNumber string) (*model.Profile, error) {
 	input := &dynamodb.GetItemInput{
-		TableName: aws.String(tableName),
+		TableName: aws.String(viper.GetString("tableName.AEyeSafeUserProfile")),
 		Key: map[string]*dynamodb.AttributeValue{
 			"phoneNumber": {
 				S: aws.String(phoneNumber),
@@ -64,7 +63,7 @@ func (c *ProfileDBClient) AddOneProfile(p *model.Profile) (*model.Profile, error
 
 	input := &dynamodb.PutItemInput{
 		Item:      av,
-		TableName: aws.String(tableName),
+		TableName: aws.String(viper.GetString("tableName.AEyeSafeUserProfile")),
 	}
 
 	_, err = c.db.PutItem(input)

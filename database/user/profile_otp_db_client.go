@@ -34,7 +34,7 @@ func (c *ProfileOTPDBClient) AddOneProfileOTP(otp *model.ProfileOTP) (*model.Pro
 
 	input := &dynamodb.PutItemInput{
 		Item:      av,
-		TableName: aws.String(viper.GetString("tableName.AEyeSafeUserProfileOTP")),
+		TableName: aws.String(viper.GetString("tableName.userProfileOTP.name")),
 	}
 
 	_, err = c.db.PutItem(input)
