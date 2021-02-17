@@ -17,9 +17,9 @@ type Message struct {
 
 // SendMessage sends SMS messages via Twilio
 func (mes *Message) SendMessage() {
-	accountSid := viper.GetString("twilio.account.sid")
-	twilioAuthToken := viper.GetString("twilio.account.authToken")
-	phoneNumberDefaultFrom := viper.GetString("twilio.account.defaultPhoneNumberFrom")
+	accountSid := viper.GetString("externalAPI.twilio.account.sid")
+	twilioAuthToken := viper.GetString("externalAPI.twilio.account.authToken")
+	phoneNumberDefaultFrom := viper.GetString("externalAPI.twilio.account.defaultPhoneNumberFrom")
 	urlStr := "https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/Messages.json"
 
 	msgData := url.Values{}

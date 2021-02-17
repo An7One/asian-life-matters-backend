@@ -120,13 +120,6 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 	// to generate the One-Time Password
 	otp := model.GenerateOTP()
 
-	// to send SMS to the phone number via Twilio
-	smsMes := twilio.Message{
-		PhoneNumberTo:  p.PhoneNumber,
-		MessageContent: otp,
-	}
-	go smsMes.SendMessage()
-
 	// to insert the ProfileOTP into the database
 	profileOTP := model.ProfileOTP{
 		PhoneNumber:  p.PhoneNumber,
@@ -135,6 +128,13 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go rs.clientOTP.AddOneProfileOTP(&profileOTP)
+
+	// to send SMS to the phone number via Twilio
+	smsMes := twilio.Message{
+		PhoneNumberTo:  p.PhoneNumber,
+		MessageContent: otp,
+	}
+	go smsMes.SendMessage()
 }
 
 func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {
