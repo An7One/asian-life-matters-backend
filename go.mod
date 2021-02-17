@@ -10,7 +10,6 @@ require (
 	github.com/go-chi/render v1.0.1
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1

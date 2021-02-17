@@ -17,7 +17,7 @@ type ProfileOTP struct {
 
 // GenerateOTP generates a one-time password， consisting of 7 pure digits
 func GenerateOTP() string {
-	return strconv.Itoa(rangeIn(10000000, 9999999))
+	return strconv.Itoa(rangeIn(1000000, 9999999))
 }
 
 func rangeIn(low, high int) int {

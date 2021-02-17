@@ -134,7 +134,7 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 		OTPCreatedAt: time.Now(),
 	}
 
-	rs.clientOTP.AddOneProfileOTP(&profileOTP)
+	go rs.clientOTP.AddOneProfileOTP(&profileOTP)
 }
 
 func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {

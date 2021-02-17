@@ -61,9 +61,10 @@ func (c *ProfileDBClient) AddOneProfile(p *model.Profile) (*model.Profile, error
 		return nil, err
 	}
 
+	tableName := aws.String(viper.GetString("database.dynamo.table.userProfile.name"))
 	input := &dynamodb.PutItemInput{
 		Item:      av,
-		TableName: aws.String(viper.GetString("tableName.AEyeSafeUserProfile")),
+		TableName: tableName,
 	}
 
 	_, err = c.db.PutItem(input)

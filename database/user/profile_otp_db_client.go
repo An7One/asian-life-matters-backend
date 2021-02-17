@@ -34,7 +34,7 @@ func (c *ProfileOTPDBClient) AddOneProfileOTP(otp *model.ProfileOTP) (*model.Pro
 
 	input := &dynamodb.PutItemInput{
 		Item:      av,
-		TableName: aws.String(viper.GetString("tableName.userProfileOTP.name")),
+		TableName: aws.String(viper.GetString("database.dynamo.table.userProfileOTP.name")),
 	}
 
 	_, err = c.db.PutItem(input)
@@ -50,7 +50,7 @@ func (c *ProfileOTPDBClient) AddOneProfileOTP(otp *model.ProfileOTP) (*model.Pro
 // GetOneProfileOTPByPhoneNumber returns a ProfileOTP by the phone number
 func (c *ProfileOTPDBClient) GetOneProfileOTPByPhoneNumber(phoneNumber string) (*model.ProfileOTP, error) {
 	input := &dynamodb.GetItemInput{
-		TableName: aws.String(viper.GetString("tableName.AEyeSafeUserProfileOTP")),
+		TableName: aws.String(viper.GetString("database.dynamo.table.userProfileOTP.name")),
 		Key: map[string]*dynamodb.AttributeValue{
 			"phoneNumber": {
 				N: aws.String(phoneNumber),
