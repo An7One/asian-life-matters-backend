@@ -1,10 +1,9 @@
 package model
 
 import (
+	"math/rand"
+	"strconv"
 	"time"
-
-	uuid "github.com/nu7hatch/gouuid"
-	"github.com/sirupsen/logrus"
 )
 
 // ProfileOTP the model for one-time password
@@ -13,16 +12,14 @@ type ProfileOTP struct {
 
 	// one time password
 	OTP          string    `json:"otp"`
-	OTPCreatedAt time.Time `json:"otp_created_at"`
+	OTPCreatedAt time.Time `json:"otpCreatedAt"`
 }
 
-// GenerateOTP generates a one-time password
-func (otp *ProfileOTP) GenerateOTP() (string, error) {
-	u4, err := uuid.NewV4()
-	UUIDToken := u4.String()
-	if err != nil {
-		logrus.Errorln("error", err)
-		return "", err
-	}
-	return UUIDToken, err
+// GenerateOTP generates a one-time password， consisting of 7 pure digits
+func GenerateOTP() string {
+	return strconv.Itoa(rangeIn(1000000, 9999999))
+}
+
+func rangeIn(low, high int) int {
+	return low + rand.Intn(high-low)
 }

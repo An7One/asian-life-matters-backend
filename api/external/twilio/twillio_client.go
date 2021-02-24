@@ -11,20 +11,20 @@ import (
 
 // Message carries messages to be sent via Twilio
 type Message struct {
-	PhoneNumberFrom string
-	PhoneNumberTo   string
-	MessageContent  string
+	PhoneNumberTo  string
+	MessageContent string
 }
 
 // SendMessage sends SMS messages via Twilio
 func (mes *Message) SendMessage() {
-	accountSid := viper.GetString("twilio_acc_sid")
-	twilioAuthToken := viper.GetString("twilio_auth_token")
+	accountSid := viper.GetString("externalAPI.twilio.account.sid")
+	twilioAuthToken := viper.GetString("externalAPI.twilio.account.authToken")
+	phoneNumberDefaultFrom := viper.GetString("externalAPI.twilio.account.defaultPhoneNumberFrom")
 	urlStr := "https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/Messages.json"
 
 	msgData := url.Values{}
 	msgData.Set("To", mes.PhoneNumberTo)
-	msgData.Set("From", mes.PhoneNumberFrom)
+	msgData.Set("From", phoneNumberDefaultFrom)
 	msgData.Set("Body", mes.MessageContent)
 	msgDataReader := *strings.NewReader(msgData.Encode())
 

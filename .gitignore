@@ -24,8 +24,8 @@
 vendor/
 
 # AEyeSafe Config
-.aeyesafe_config.yaml
-.aeyesafe_config
+.config_aeyesafe.yaml
+.config_aeyesafe
 
 # General
 .DS_Store

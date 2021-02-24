@@ -26,7 +26,8 @@ type API struct {
 // NewAPI configures and returns the application API
 func NewAPI(db *dynamodb.DynamoDB) (*API, error) {
 	profileDBClient := database.NewProfileDBClient(db)
-	profile := NewProfileResource(profileDBClient)
+	profileOTPDBClient := database.NewProfileOTPDBClient(db)
+	profile := NewProfileResource(profileDBClient, profileOTPDBClient)
 
 	api := &API{
 		Profile: profile,

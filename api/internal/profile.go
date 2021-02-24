@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/zea7ot/web_api_aeyesafe/api/external/twilio"
 	model "github.com/zea7ot/web_api_aeyesafe/model/user"
 )
 
@@ -25,13 +27,15 @@ type ProfileDBClient interface {
 
 // ProfileResource implements Profile management handler
 type ProfileResource struct {
-	Client ProfileDBClient
+	clientProfile ProfileDBClient
+	clientOTP     ProfileOTPDBClient
 }
 
 // NewProfileResource creates and returns a profile resource
-func NewProfileResource(client ProfileDBClient) *ProfileResource {
+func NewProfileResource(clientProfile ProfileDBClient, clientOTP ProfileOTPDBClient) *ProfileResource {
 	return &ProfileResource{
-		Client: client,
+		clientProfile: clientProfile,
+		clientOTP:     clientOTP,
 	}
 }
 
@@ -93,23 +97,44 @@ func (rs *ProfileResource) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// to query the existing user
-	exg, err := rs.Client.GetOneProfileByPhoneNumber(p.PhoneNumber)
-	if err != nil {
-		render.Render(w, r, ErrInvalidRequest(err))
-		return
-	}
+	// exg, _ := rs.clientProfile.GetOneProfileByPhoneNumber(p.PhoneNumber)
+	// if err != nil {
+	// 	render.Render(w, r, ErrInvalidRequest(err))
+	// 	return
+	// }
 
 	// if there is any existing user
-	if exg != nil {
-		// todo: 409 conflict
+	// if exg != nil {
+	// 	w.WriteHeader(http.StatusConflict)
+	// 	w.Write([]byte("Phone number was registered before"))
+	// 	return
+	// }
 
-		return
+	// _, err =
+	go rs.clientProfile.AddOneProfile(p)
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// to generate the One-Time Password
+	otp := model.GenerateOTP()
+
+	// to insert the ProfileOTP into the database
+	profileOTP := model.ProfileOTP{
+		PhoneNumber:  p.PhoneNumber,
+		OTP:          otp,
+		OTPCreatedAt: time.Now(),
 	}
 
+	go rs.clientOTP.AddOneProfileOTP(&profileOTP)
+
 	// to send SMS to the phone number via Twilio
-
-	// to insert the profile into the database
-
+	smsMes := twilio.Message{
+		PhoneNumberTo:  p.PhoneNumber,
+		MessageContent: otp,
+	}
+	go smsMes.SendMessage()
 }
 
 func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {
@@ -128,13 +153,14 @@ func (rs *ProfileResource) add(w http.ResponseWriter, r *http.Request) {
 	// 	render.Render(w, r, ErrInvalidRequest(err))
 	// }
 
-	_, err = rs.Client.AddOneProfile(p)
+	_, err = rs.clientProfile.AddOneProfile(p)
 	if err != nil {
 		switch err.(type) {
 		case validation.Errors:
 			render.Render(w, r, ErrValidation(ErrProfileValidation, err.(validation.Errors)))
 			return
 		}
+
 		render.Render(w, r, ErrRender(err))
 		return
 	}
@@ -149,7 +175,7 @@ func (rs *ProfileResource) update(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ErrInvalidRequest(err))
 	}
 
-	_, err := rs.Client.UpdateOneProfile(p)
+	_, err := rs.clientProfile.UpdateOneProfile(p)
 	if err != nil {
 		switch err.(type) {
 		case validation.Errors:
